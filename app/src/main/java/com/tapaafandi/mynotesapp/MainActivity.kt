@@ -1,8 +1,14 @@
-package com.tapaafandi.mynotesapp
+package com.tap
+
+import com.tapaafandi.mynotesapp.NoteAddUpdateActivity
+import com.tapaafandi.mynotesapp.db.DatabaseContract.NoteColumns.Companion.CONTENT_URI
 
 import android.content.Intent
+import android.database.ContentObserver
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -44,10 +50,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        noteHelper = NoteHelper.getInstance(applicationContext)
-        noteHelper.open()
+        val handlerThread = HandlerThread("DataObserver")
+        handlerThread.start()
+        val handler = Handler(handlerThread.looper)
 
-        loadNoteAsync()
+        val myObserver = object : ContentObserver(handler) {
+            override fun onChange(selfChange: Boolean) {
+                loadNoteAsync()
+            }
+        }
+
+        contentResolver.registerContentObserver(CONTENT_URI, true, myObserver)
 
         if (savedInstanceState == null) {
             loadNoteAsync()
@@ -68,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.Main) {
             binding.progressbar.visibility = View.VISIBLE
             val deferredNotes = async(Dispatchers.IO) {
-                val cursor = noteHelper.queryAll()
+                val cursor = contentResolver.query(CONTENT_URI, null, null, null, null)
                 MappingHelper.mapCursorToArrayList(cursor)
             }
             binding.progressbar.visibility = View.INVISIBLE

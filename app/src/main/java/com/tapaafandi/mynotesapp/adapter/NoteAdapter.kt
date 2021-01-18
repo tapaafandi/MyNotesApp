@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tapaafandi.mynotesapp.CustomOnItemClickListener
-import com.tapaafandi.mynotesapp.MainActivity
 import com.tapaafandi.mynotesapp.NoteAddUpdateActivity
 import com.tapaafandi.mynotesapp.R
 import com.tapaafandi.mynotesapp.databinding.ItemNoteBinding
